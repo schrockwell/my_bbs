@@ -1,6 +1,7 @@
 defmodule MyBBS.METARView do
   @behaviour BBS.View
 
+  import BBS.Format
   import BBS.View
 
   @impl BBS.View
@@ -8,7 +9,7 @@ defmodule MyBBS.METARView do
     view =
       view
       |> clear()
-      |> println(IO.ANSI.format([:blue, :bright, "== METAR Lookup =="]))
+      |> println(ansi([:blue, :bright, "== METAR Lookup =="]))
       |> println("(. to quit)")
       |> println()
       |> icao_prompt()
@@ -47,13 +48,13 @@ defmodule MyBBS.METARView do
 
     case Req.get(url) do
       {:ok, %{status: 200, body: ""}} ->
-        view |> clear_line() |> println(IO.ANSI.format([:red, "No METAR available"]))
+        view |> clear_line() |> println(ansi([:red, "No METAR available"]))
 
       {:ok, %{status: 200, body: body}} ->
-        view |> clear_line() |> println(IO.ANSI.format([:green, String.trim(body)]))
+        view |> clear_line() |> println(ansi([:green, String.trim(body)]))
 
       {:error, _} ->
-        view |> clear_line() |> println(IO.ANSI.format([:red, "Error fetching METAR"]))
+        view |> clear_line() |> println(ansi([:red, "Error fetching METAR"]))
     end
 
     {:noreply, icao_prompt(view)}
@@ -63,7 +64,7 @@ defmodule MyBBS.METARView do
     {:noreply,
      view
      |> println()
-     |> println(IO.ANSI.format([:red, "Invalid identifier"]))
+     |> println(ansi([:red, "Invalid identifier"]))
      |> icao_prompt()}
   end
 end

@@ -10,7 +10,8 @@ defmodule MyBBS.Application do
     children = [
       MyBBS.Chat,
       BBS.Supervisor,
-      {BBS.Endpoint, initial_view: MyBBS.HomeView}
+      {BBS.Endpoint,
+       initial_view: MyBBS.HomeView, port: String.to_integer(System.get_env("PORT", "8080"))}
       # Starts a worker by calling: MyBBS.Worker.start_link(arg)
       # {MyBBS.Worker, arg}
     ]

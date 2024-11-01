@@ -1,6 +1,7 @@
 defmodule MyBBS.ChatView do
   @behaviour BBS.View
 
+  import BBS.Format
   import BBS.View
 
   require IEx
@@ -13,7 +14,7 @@ defmodule MyBBS.ChatView do
     view =
       view
       |> clear()
-      |> println(IO.ANSI.format([:blue, :bright, "== Chat =="]))
+      |> println(ansi([:blue, :bright, "== Chat =="]))
       |> assign(:bell, false)
 
     view =
@@ -99,7 +100,7 @@ defmodule MyBBS.ChatView do
     view =
       view
       |> clear_line()
-      |> println(IO.ANSI.format([:bright, "#{name}: #{message}"]))
+      |> println(ansi([:bright, "#{name}: #{message}"]))
       |> maybe_bell()
       |> prompt_message()
 

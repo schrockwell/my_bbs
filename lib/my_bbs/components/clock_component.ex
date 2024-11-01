@@ -1,6 +1,7 @@
 defmodule MyBBS.ClockComponent do
   use BBS.Component
 
+  import BBS.Format
   import BBS.View
 
   @impl BBS.Component
@@ -18,7 +19,7 @@ defmodule MyBBS.ClockComponent do
 
   @impl BBS.Component
   def render(assigns) do
-    IO.ANSI.format([
+    ansi([
       :yellow,
       :bright,
       Calendar.strftime(assigns.now, "%Y-%m-%d %H:%M:%S UTC")
