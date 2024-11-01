@@ -22,10 +22,18 @@ defmodule MyBBS.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:bbs, path: "../bbs"},
+      bbs_dep(),
       {:req, "~> 0.5.0"}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]
+  end
+
+  defp bbs_dep do
+    if path = System.get_env("BBS_PATH") do
+      {:bbs, path: path}
+    else
+      {:bbs, github: "schrockwell/bbs", branch: "main"}
+    end
   end
 end

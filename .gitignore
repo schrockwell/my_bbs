@@ -26,3 +26,4 @@ my_bbs-*.tar
 /tmp/
 
 .DS_Store
+.envrc
