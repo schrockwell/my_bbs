@@ -1,7 +1,5 @@
 defmodule MyBBS.HomeView do
-  @behaviour BBS.View
-
-  import BBS.View
+  use MyBBS, :view
 
   def mount(_arg, _session, view) do
     view =

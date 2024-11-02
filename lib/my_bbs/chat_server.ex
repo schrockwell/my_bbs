@@ -30,6 +30,10 @@ defmodule MyBBS.ChatServer do
     {:reply, names(state), state}
   end
 
+  def handle_call(:count_users, _from, state) do
+    {:reply, map_size(state.members), state}
+  end
+
   @impl GenServer
   def handle_cast({:push, message, from}, state) do
     if member = state.members[from] do

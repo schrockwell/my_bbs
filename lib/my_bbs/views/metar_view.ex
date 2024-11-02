@@ -1,8 +1,5 @@
 defmodule MyBBS.METARView do
-  @behaviour BBS.View
-
-  import BBS.Format
-  import BBS.View
+  use MyBBS, :view
 
   @impl BBS.View
   def mount(_arg, _session, view) do

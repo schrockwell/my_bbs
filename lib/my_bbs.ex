@@ -1,18 +1,23 @@
 defmodule MyBBS do
-  @moduledoc """
-  Documentation for `MyBBS`.
-  """
+  def view do
+    quote do
+      @behaviour BBS.View
 
-  @doc """
-  Hello world.
+      import BBS.Format
+      import BBS.View
+    end
+  end
 
-  ## Examples
+  def component do
+    quote do
+      use BBS.Component
 
-      iex> MyBBS.hello()
-      :world
+      import BBS.Format
+      import BBS.View
+    end
+  end
 
-  """
-  def hello do
-    :world
+  defmacro __using__(thing) do
+    apply(__MODULE__, thing, [])
   end
 end

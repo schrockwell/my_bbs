@@ -1,8 +1,5 @@
 defmodule MyBBS.ChatView do
-  @behaviour BBS.View
-
-  import BBS.Format
-  import BBS.View
+  use MyBBS, :view
 
   require IEx
 
@@ -93,6 +90,8 @@ defmodule MyBBS.ChatView do
       |> maybe_bell()
       |> prompt_message()
 
+    send_update(:header, {:user_count, Chat.count_users()})
+
     {:noreply, view}
   end
 
@@ -114,6 +113,8 @@ defmodule MyBBS.ChatView do
       |> println("<-- #{name} left.")
       |> maybe_bell()
       |> prompt_message()
+
+    send_update(:header, {:user_count, Chat.count_users()})
 
     {:noreply, view}
   end
@@ -172,6 +173,10 @@ defmodule MyBBS.ChatView do
         |> assign(:name, name)
         |> put_session(:chat_name, name)
         |> clear()
+        |> print("\e[2;25r")
+        |> component(:header, MyBBS.ChatHeader, {1, 1})
+        # Set scroll region
+        |> print(IO.ANSI.cursor(2, 1))
         |> println("Joined chat as #{name}.")
         |> print_help()
         |> print_names()

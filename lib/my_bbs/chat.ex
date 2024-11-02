@@ -19,4 +19,8 @@ defmodule MyBBS.Chat do
   def list_users do
     GenServer.call(@server, :list_users)
   end
+
+  def count_users do
+    GenServer.call(@server, :count_users)
+  end
 end
