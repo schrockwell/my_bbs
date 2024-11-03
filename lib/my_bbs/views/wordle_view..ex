@@ -7,27 +7,94 @@ defmodule MyBBS.WordleView do
     view =
       view
       |> assign(:game, Wordle.new())
+      |> assign(:input_index, 0)
+      |> assign(:input, ["", "", "", "", ""])
       |> clear()
       |> draw_words()
       |> draw_alphabet()
-      |> prompt_word()
+      |> move_cursor()
 
     {:ok, view}
   end
 
-  def handle_prompt(:word, ".", view) do
+  def handle_data(".", view) do
     {:noreply, navigate(view, MyBBS.HomeView)}
   end
 
-  def handle_prompt(:word, word, view) do
+  def handle_data({:cursor_right, [count]}, %{assigns: %{game: %{state: :playing}}} = view) do
+    next_index = min(4, view.assigns.input_index + count)
+
+    view =
+      view
+      |> assign(:input_index, next_index)
+      |> move_cursor()
+
+    {:noreply, view}
+  end
+
+  def handle_data({:cursor_left, [count]}, %{assigns: %{game: %{state: :playing}}} = view) do
+    next_index = max(0, view.assigns.input_index - count)
+
+    view =
+      view
+      |> assign(:input_index, next_index)
+      |> move_cursor()
+
+    {:noreply, view}
+  end
+
+  def handle_data(<<ascii>> = letter, %{assigns: %{game: %{state: :playing}}} = view)
+      when ascii in ?A..?Z or ascii in ?a..?z do
+    letter = String.upcase(letter)
+    guesses = List.replace_at(view.assigns.input, view.assigns.input_index, letter)
+    next_index = min(4, view.assigns.input_index + 1)
+
+    view =
+      view
+      |> assign(:input, guesses)
+      |> assign(:input_index, next_index)
+      |> print(letter)
+      |> move_cursor()
+
+    {:noreply, view}
+  end
+
+  def handle_data("\b", %{assigns: %{game: %{state: :playing}}} = view) do
+    bs_index =
+      if view.assigns.input_index > 0 &&
+           Enum.at(view.assigns.input, view.assigns.input_index) == "" do
+        print(view, IO.ANSI.cursor_left(2))
+        view.assigns.input_index - 1
+      else
+        view.assigns.input_index
+      end
+
+    guesses = List.replace_at(view.assigns.input, bs_index, "")
+    next_index = max(0, view.assigns.input_index - 1)
+
+    view =
+      view
+      |> assign(:input, guesses)
+      |> assign(:input_index, next_index)
+      |> print("_")
+      |> move_cursor()
+
+    {:noreply, view}
+  end
+
+  def handle_data("\r", %{assigns: %{game: %{state: :playing}}} = view) do
+    word = Enum.join(view.assigns.input)
     game = Wordle.guess(view.assigns.game, word)
 
     view =
       view
       |> assign(:game, game)
+      |> assign(:input, ["", "", "", "", ""])
+      |> assign(:input_index, 0)
       |> draw_words()
       |> draw_alphabet()
-      |> prompt_word()
+      |> draw_result()
+      |> move_cursor()
 
     {:noreply, view}
   end
@@ -36,10 +103,12 @@ defmodule MyBBS.WordleView do
     view =
       view
       |> assign(:game, Wordle.new())
+      |> assign(:input, ["", "", "", "", ""])
+      |> assign(:input_index, 0)
       |> clear()
       |> draw_words()
       |> draw_alphabet()
-      |> prompt_word()
+      |> move_cursor()
 
     {:noreply, view}
   end
@@ -48,7 +117,7 @@ defmodule MyBBS.WordleView do
     {:noreply, view}
   end
 
-  defp prompt_word(%{assigns: %{game: %{state: :won}}} = view) do
+  defp draw_result(%{assigns: %{game: %{state: :won}}} = view) do
     print(
       view,
       [
@@ -59,7 +128,7 @@ defmodule MyBBS.WordleView do
     )
   end
 
-  defp prompt_word(%{assigns: %{game: %{state: :lost, word: word}}} = view) do
+  defp draw_result(%{assigns: %{game: %{state: :lost, word: word}}} = view) do
     print(
       view,
       [
@@ -70,18 +139,8 @@ defmodule MyBBS.WordleView do
     )
   end
 
-  defp prompt_word(view) do
+  defp draw_result(view) do
     view
-    |> print(IO.ANSI.home())
-    |> print("GUESS: ")
-    |> prompt(:word,
-      length: 5,
-      permitted: ~r/[A-Za-z\.]/,
-      bell: true,
-      placeholder: " ",
-      format: IO.ANSI.reverse(),
-      transform: &String.upcase/1
-    )
   end
 
   defp draw_words(view) do
@@ -152,5 +211,15 @@ defmodule MyBBS.WordleView do
     end
 
     view
+  end
+
+  defp move_cursor(%{assigns: %{game: %{state: :playing}}} = view) do
+    line = 1 + view.assigns.game.round * 2
+    col = 4 + view.assigns.input_index * 2
+    print(view, IO.ANSI.cursor(line, col))
+  end
+
+  defp move_cursor(view) do
+    print(view, IO.ANSI.home())
   end
 end
