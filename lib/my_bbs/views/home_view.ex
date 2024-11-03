@@ -12,12 +12,13 @@ defmodule MyBBS.HomeView do
       |> println("C) Chat")
       |> println("H) Hangman")
       |> println("M) METAR Lookup")
+      |> println("W) Wordle")
       |> println(".) Disconnect")
       |> println()
       |> print("CHOICE: ")
       |> prompt(:choice,
         length: 1,
-        permitted: ~r/[MmCcHh\.]/,
+        permitted: ~r/[MmCcHhWw\.]/,
         bell: true,
         format: IO.ANSI.inverse(),
         placeholder: " ",
@@ -38,6 +39,10 @@ defmodule MyBBS.HomeView do
 
   def handle_prompt(:choice, m, view) when m in ["m", "M"] do
     {:noreply, navigate(view, MyBBS.METARView)}
+  end
+
+  def handle_prompt(:choice, w, view) when w in ["w", "W"] do
+    {:noreply, navigate(view, MyBBS.WordleView)}
   end
 
   def handle_prompt(:choice, ".", view) do
