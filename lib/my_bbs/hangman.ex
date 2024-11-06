@@ -1,19 +1,10 @@
 defmodule MyBBS.Hangman do
   defstruct word: "hangman", guesses: MapSet.new(), state: :playing, remaining: 7
 
-  @words :my_bbs
-         |> Application.app_dir("priv")
-         |> Path.join("hangman.txt")
-         |> File.read!()
-         |> String.split("\n")
-         |> Enum.reject(&(String.length(&1) < 5))
-
-  defp random_word do
-    Enum.random(@words)
-  end
+  alias MyBBS.Dictionary
 
   def new do
-    %MyBBS.Hangman{word: String.upcase(random_word())}
+    %MyBBS.Hangman{word: String.upcase(Dictionary.random(:hangman))}
   end
 
   def guess(%{state: :playing} = game, letter) do

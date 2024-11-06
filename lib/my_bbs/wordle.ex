@@ -1,35 +1,33 @@
 defmodule MyBBS.Wordle do
   defstruct word: nil, guesses: [], state: :playing, round: 1
 
-  @words :my_bbs
-         |> Application.app_dir("priv")
-         |> Path.join("hangman.txt")
-         |> File.read!()
-         |> String.split("\n")
-         |> Enum.filter(&(String.length(&1) == 5))
-
-  defp random_word do
-    Enum.random(@words)
-  end
+  alias MyBBS.Dictionary
 
   def new do
-    %MyBBS.Wordle{word: String.upcase(random_word())}
+    %MyBBS.Wordle{word: String.upcase(Dictionary.random(:wordle_answers))}
   end
 
   def guess(%{state: :playing} = game, <<_::binary-5>> = word) do
     word = String.upcase(word)
-    guesses = game.guesses ++ [analyze_guess(game.word, word)]
 
-    state =
-      cond do
-        word == game.word -> :won
-        game.round == 6 -> :lost
-        true -> :playing
-      end
+    if Dictionary.contains?(:wordle_guesses, word) do
+      # Valid guess (is in dictionary)
+      guesses = game.guesses ++ [analyze_guess(game.word, word)]
 
-    round = game.round + 1
+      state =
+        cond do
+          word == game.word -> :won
+          game.round == 6 -> :lost
+          true -> :playing
+        end
 
-    %{game | guesses: guesses, state: state, round: round}
+      round = game.round + 1
+
+      %{game | guesses: guesses, state: state, round: round}
+    else
+      # Invalid guess (not in dictionary)
+      game
+    end
   end
 
   def guess(game, _word), do: game
