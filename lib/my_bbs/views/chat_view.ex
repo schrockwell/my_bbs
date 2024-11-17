@@ -1,8 +1,6 @@
 defmodule MyBBS.ChatView do
   use MyBBS, :view
 
-  require IEx
-
   alias MyBBS.Chat
 
   @impl BBS.View

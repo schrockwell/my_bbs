@@ -10,6 +10,7 @@ defmodule MyBBS.HomeView do
       |> println("Select an option:")
       |> println()
       |> println("C) Chat")
+      |> println("G) ChatGPT")
       |> println("H) Hangman")
       |> println("M) METAR Lookup")
       |> println("W) Wordle")
@@ -18,7 +19,7 @@ defmodule MyBBS.HomeView do
       |> print("CHOICE: ")
       |> prompt(:choice,
         length: 1,
-        permitted: ~r/[MmCcHhWw\.]/,
+        permitted: ~r/[MmCcGgHhWw\.]/,
         bell: true,
         format: IO.ANSI.inverse(),
         placeholder: " ",
@@ -31,6 +32,10 @@ defmodule MyBBS.HomeView do
 
   def handle_prompt(:choice, c, view) when c in ["c", "C"] do
     {:noreply, navigate(view, MyBBS.ChatView)}
+  end
+
+  def handle_prompt(:choice, g, view) when g in ["g", "G"] do
+    {:noreply, navigate(view, MyBBS.ChatGPTView)}
   end
 
   def handle_prompt(:choice, h, view) when h in ["h", "H"] do
